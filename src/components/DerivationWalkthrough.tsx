@@ -127,6 +127,47 @@ export const DerivationWalkthrough: React.FC = () => {
         </p>
       </Section>
 
+      <Section title="Step 7 — Off-axis extension (fan-beam)">
+        <p>
+          Steps 1–6 placed the feature at the isocentre, where every projection traverses the
+          full diameter and every <Tex tex="N_{bg}" /> is the same. For a feature at position{' '}
+          <Tex tex="P=(x,y)" /> with a point source at distance <Tex tex="D" /> (SOD) from the
+          isocentre, two things change.
+        </p>
+
+        <p>
+          <strong>(a) Chord through the phantom depends on angle.</strong> With source at{' '}
+          <Tex tex="S(\theta)=(D\cos\theta, D\sin\theta)" /> and unit ray direction{' '}
+          <Tex tex="\hat d = (P-S)/|P-S|" />, the chord is
+        </p>
+        <Tex
+          tex="\text{chord}(\theta,P) = 2\sqrt{(S\!\cdot\!\hat d)^2 - (D^2 - R^2)}"
+          block
+        />
+
+        <p>
+          <strong>(b) Object-plane pixel pitch scales with source distance.</strong> Anchoring{' '}
+          <Tex tex="\Delta a_{obj}" /> to its isocentre value,
+        </p>
+        <Tex
+          tex="\Delta a_{obj}(P, \theta) = \Delta a_{obj}\cdot \frac{|P-S(\theta)|}{D}"
+          block
+        />
+
+        <p>
+          Folding (a) and (b) back into the Step 4 sum — each projection{' '}
+          <Tex tex="\theta_j" /> now contributes its own{' '}
+          <Tex tex="N_{bg}(\theta_j, P)/\Delta a_{obj}(\theta_j, P)" />:
+        </p>
+        <Tex
+          tex="d_{\min}(P) = \left(\frac{3\,(d'_{\text{th}})^2\,\Delta a_{obj}}{2\,\Delta\mu^2\,D\,\displaystyle\sum_{\theta}\dfrac{N_0\,e^{-\mu_{bg}\,\text{chord}(\theta,P)}}{|P-S(\theta)|}}\right)^{1/3}"
+          block
+        />
+        <p>
+          where the sum runs over all <Tex tex="N_\theta" /> projection angles in the scan arc.
+        </p>
+      </Section>
+
       <Section title="References">
         <p>Primary reference:</p>
         <ul className="list-disc ml-5 space-y-1 text-gray-700">

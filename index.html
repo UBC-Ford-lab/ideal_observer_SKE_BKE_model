@@ -9,7 +9,7 @@
     <!-- Short description for crawlers, agents, and link previews -->
     <meta
       name="description"
-      content="Interactive calculator for the reconstruction-independent minimum detectable feature size and spatial-frequency limit of a CT scanner, from the projection-domain SKE/BKE ideal observer (Rose criterion). d_min = (3·d'_th²·Δa_obj / (2·N_θ·N_bg·Δμ²))^(1/3); N_bg = N0·exp(-μ_bg·L)."
+      content="Interactive calculator for the reconstruction-independent minimum detectable feature size and spatial-frequency limit of a CT scanner, from the projection-domain SKE/BKE ideal observer (Rose criterion). At-isocentre: d_min = (3·d'_th²·Δa_obj / (2·N_θ·N_bg·Δμ²))^(1/3) with N_bg = N0·exp(-μ_bg·L). Off-axis fan-beam map of d_min(P) for arbitrary arc coverage and source distance is also provided."
     />
 
     <!-- Discovery hints for LLM agents and crawlers -->
@@ -64,14 +64,14 @@
           <li><a href="formulas.json">formulas.json</a> — typed JSON: inputs, outputs, formulas, worked example</li>
         </ul>
 
-        <h2>Closed-form formula</h2>
+        <h2>Closed-form formula (at isocentre)</h2>
         <p>Inputs:</p>
         <ul>
           <li><code>N0</code> — photons per pixel in the unattenuated beam</li>
           <li><code>mu_bg</code> — background linear attenuation coefficient (mm⁻¹)</li>
           <li><code>L</code> — path length through background (mm)</li>
           <li><code>N_theta</code> — number of projection angles</li>
-          <li><code>delta_a_obj</code> — detector pixel pitch at the object plane (mm)</li>
+          <li><code>delta_a_obj</code> — object-plane pixel pitch at isocentre (mm)</li>
           <li><code>delta_mu</code> — linear attenuation contrast of the feature (mm⁻¹); for HU contrast: <code>delta_mu = (delta_HU / 1000) * mu_water</code></li>
           <li><code>d_prime_threshold</code> — Rose detectability threshold (classical: 3; Hsieh et al. 2022: 5)</li>
         </ul>
@@ -81,6 +81,17 @@ d_min               = (3 * d_prime_threshold^2 * delta_a_obj
                        / (2 * N_theta * N_bg * delta_mu^2)) ^ (1/3)        # mm
 resolution_lp_per_mm = 1 / (2 * d_min)                                     # lp/mm
 </code></pre>
+
+        <h2>Off-axis (fan-beam) extension</h2>
+        <p>For a feature at voxel P=(x,y) inside a uniform phantom of radius R, with a point source at distance D (SOD), the source at projection angle theta sits at S(theta) = (D·cos theta, D·sin theta). Two corrections enter:</p>
+        <pre><code>chord(theta, P) = 2 * sqrt( (S . d_hat)^2 - (D^2 - R^2) )    # d_hat = (P-S)/|P-S|
+delta_a_obj(P, theta) = delta_a_obj * |P - S(theta)| / D     # local pixel pitch
+
+d_min(P) = ( 3 * d_prime_threshold^2 * delta_a_obj
+             / ( 2 * delta_mu^2 * D
+                 * sum_theta [ N0 * exp(-mu_bg * chord(theta, P)) / |P - S(theta)| ] ) )^(1/3)
+</code></pre>
+        <p>Sum is over all N_theta projection angles in the scan arc. Reduces to the at-isocentre formula as D → ∞ or at P = (0,0). For partial arcs the map is no longer radially symmetric — the source-facing side sees shorter chords and higher magnification.</p>
 
         <h2>Worked example</h2>
         <p>GE eXplore CT 120 at 80 kVp, 500 HU object contrast:</p>

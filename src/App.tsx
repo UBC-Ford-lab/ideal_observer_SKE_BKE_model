@@ -4,6 +4,7 @@ import { ParameterInput } from './components/ParameterInput';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { InteractivePlots } from './components/InteractivePlots';
 import { DerivationWalkthrough } from './components/DerivationWalkthrough';
+import { RadialResolutionMap } from './components/RadialResolutionMap';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   });
   const [contrast, setContrast] = useState(500);
   const [roseThreshold, setRoseThreshold] = useState(3.0);
+  const [showRadialMap, setShowRadialMap] = useState(false);
 
   const handleParamsChange = (newParams: ScannerParams, newContrast: number) => {
     setParams(newParams);
@@ -50,6 +52,23 @@ function App() {
               className="w-full text-xs"
             />
           </div>
+
+          {/* Radial map toggle (sliding switch) */}
+          <div className="border-t mt-3 pt-2">
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-xs font-mono text-gray-700">Show radial resolution map</span>
+              <span className="relative inline-block">
+                <input
+                  type="checkbox"
+                  checked={showRadialMap}
+                  onChange={(e) => setShowRadialMap(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <span className="block w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></span>
+                <span className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></span>
+              </span>
+            </label>
+          </div>
         </div>
 
         {/* Middle: Results */}
@@ -64,6 +83,20 @@ function App() {
           <InteractivePlots params={params} contrast={contrast} roseThreshold={roseThreshold} />
         </div>
       </div>
+
+      {/* Radial resolution map (toggle) */}
+      {showRadialMap && (
+        <div className="max-w-6xl mx-auto mt-6 border border-gray-300 p-4">
+          <div className="text-xs font-mono font-bold mb-3 pb-2 border-b">
+            Radial resolution map (spatial d_min across the phantom)
+          </div>
+          <RadialResolutionMap
+            params={params}
+            contrast={contrast}
+            roseThreshold={roseThreshold}
+          />
+        </div>
+      )}
 
       {/* Derivation section */}
       <div className="max-w-6xl mx-auto mt-6 border border-gray-300 p-4">

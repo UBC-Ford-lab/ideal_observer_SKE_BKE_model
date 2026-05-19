@@ -1,6 +1,6 @@
 # Ideal Observer CT Resolution Calculator
 
-> Interactive calculator for the minimum detectable feature size and spatial-frequency limit of a CT scanner, derived from the projection-domain ideal observer (Rose criterion, SKE/BKE). The result is reconstruction-independent — it is a property of photon statistics and scan geometry.
+> Interactive calculator for the minimum detectable feature size and spatial-frequency limit of a CT scanner, derived from the projection-domain ideal observer (Rose criterion, SKE/BKE). The result is reconstruction-independent — it is a property of photon statistics and scan geometry. Supports both the at-isocentre closed-form and an off-axis fan-beam extension that maps d_min(P) across the phantom.
 
 Authors: Falk L. Wiegmann & Nancy L. Ford, University of British Columbia, 2026.
 
@@ -8,9 +8,23 @@ Authors: Falk L. Wiegmann & Nancy L. Ford, University of British Columbia, 2026.
 
 Given a CT scanner's photon flux and geometry, this calculator answers: *what is the smallest disc of a given contrast that the scanner can theoretically detect?* The model is non-prewhitening, signal-known-exactly (SKE), background-known-exactly (BKE), and assumes Poisson photon statistics. The result is an **upper bound** on detectability — every real reconstruction (FDK, SIRT, neural) performs worse.
 
-## Quick formula (for agents who just want to compute)
+The page exposes two computations:
 
-Inputs: `N0` (photons/px in the unattenuated beam), `mu_bg` (mm⁻¹), `L` (mm), `N_theta`, `delta_a_obj` (mm), `delta_mu` (mm⁻¹), `d_prime_threshold` (default 3).
+1. **At isocentre (closed-form)** — a single d_min value assuming the feature is at the rotation centre and projections cover ≥ 180°.
+2. **Off-axis / partial-arc map** — a 2D heatmap (and matching 3D surface) of d_min(P) across the phantom for arbitrary point-source distance D and projection arc.
+
+## Quick formulas (for agents who just want to compute)
+
+Shared inputs:
+- `N0` — photons/pixel in the unattenuated beam
+- `mu_bg` — background linear attenuation coefficient (mm⁻¹)
+- `L` — background path length through phantom diameter (mm)
+- `N_theta` — total number of projection angles
+- `delta_a_obj` — object-plane pixel pitch at isocentre (mm)
+- `delta_mu` — linear attenuation contrast of the feature (mm⁻¹); for HU contrast: `delta_mu = (delta_HU / 1000) * mu_water`
+- `d_prime_threshold` — Rose detectability threshold (classical 3; Hsieh et al. 2022 argue 5)
+
+### At isocentre (full-arc, parallel-beam idealisation)
 
 ```
 N_bg = N0 * exp(-mu_bg * L)
@@ -18,13 +32,41 @@ d_min = (3 * d_prime_threshold^2 * delta_a_obj / (2 * N_theta * N_bg * delta_mu^
 resolution = 1 / (2 * d_min)                                                                # lp/mm
 ```
 
-For HU contrast: `delta_mu = (delta_HU / 1000) * mu_water`.
+### Off-axis (fan-beam, arbitrary arc)
+
+Extra inputs:
+- `R` — phantom radius (mm); typically L/2
+- `D` — source-to-isocentre distance (SOD, mm)
+- arc covers angles [phi_start, phi_end]
+
+For a feature at P = (x, y), the source at projection angle theta sits at S(theta) = (D*cos theta, D*sin theta). The fan-beam chord through the phantom is
+
+```
+d_hat = (P - S(theta)) / |P - S(theta)|
+chord(theta, P) = 2 * sqrt( (S . d_hat)^2 - (D^2 - R^2) )
+```
+
+(reduces to 2*sqrt(R^2 - r^2 * sin^2(theta - alpha)) as D -> infinity). The local object-plane pixel pitch is
+
+```
+delta_a_obj(P, theta) = delta_a_obj * |P - S(theta)| / D
+```
+
+Substituting into the d'^2 sum and solving:
+
+```
+d_min(P) = ( 3 * d_prime_threshold^2 * delta_a_obj
+             / ( 2 * delta_mu^2 * D
+                 * sum_theta [ N0 * exp(-mu_bg * chord(theta, P)) / |P - S(theta)| ] ) )^(1/3)
+```
+
+where the sum runs over all N_theta projection angles in the scan arc.
 
 ## Resources
 
-- [llms-full.txt](llms-full.txt): full derivation in plain markdown — every step from matched filter to d_min.
-- [formulas.json](formulas.json): typed JSON schema of inputs/outputs with the closed-form equations in Python and LaTeX, plus a worked example.
-- [index.html](index.html): interactive UI with TIFF upload for N₀ estimation from flat-field measurements.
+- [llms-full.txt](llms-full.txt) — full derivation including Step 7 (fan-beam off-axis extension).
+- [formulas.json](formulas.json) — typed JSON: inputs, outputs, both formulas, worked example.
+- [index.html](index.html) — interactive UI with TIFF upload for N₀ estimation and a radial-resolution heatmap toggle.
 
 ## Primary reference
 
