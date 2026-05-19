@@ -110,6 +110,38 @@ This is the photon-noise resolution limit — the highest spatial frequency at w
 
 ---
 
+## Step 7 — Off-axis extension (fan-beam)
+
+Steps 1–6 placed the feature at the isocentre, where every projection traverses the full diameter and every `N_bg` is the same. For a feature at position `P = (x, y)` with a point source at distance `D` (SOD) from the isocentre, two things change.
+
+**(a) Chord through the phantom depends on angle.** With source at `S(theta) = (D*cos theta, D*sin theta)` and unit ray direction `d_hat = (P - S)/|P - S|`, the chord through a phantom of radius `R` is
+
+```
+chord(theta, P) = 2 * sqrt( (S . d_hat)^2 - (D^2 - R^2) )
+```
+
+This reduces to the parallel-beam formula `2*sqrt(R^2 - r^2 * sin^2(theta - alpha))` as `D → ∞`, and to `2R` at the isocentre.
+
+**(b) Object-plane pixel pitch scales with source distance.** Anchoring `delta_a_obj` to its isocentre value,
+
+```
+delta_a_obj(P, theta) = delta_a_obj * |P - S(theta)| / D
+```
+
+Folding (a) and (b) back into the Step 4 sum — each projection `theta_j` now contributes its own `N_bg(theta_j, P) / delta_a_obj(theta_j, P)` — gives
+
+```
+d_min(P) = ( 3 * d_prime_threshold^2 * delta_a_obj
+             / ( 2 * delta_mu^2 * D
+                 * sum_theta [ N0 * exp(-mu_bg * chord(theta, P)) / |P - S(theta)| ] ) )^(1/3)
+```
+
+where the sum runs over all `N_theta` projection angles in the scan arc. For full-arc (≥ 180°) scans at large `D` this collapses back to the closed-form `d_min` of Step 5. For partial arcs the map is no longer radially symmetric: the source-facing side sees shorter chords AND higher magnification, both improving local resolution.
+
+The web UI exposes this as a "Show radial resolution map" toggle that renders `d_min(P)` across the phantom as a 2D heatmap with a matching 3D surface.
+
+---
+
 ## How to measure N0 from raw data
 
 If the user has dark-field, bright-field, and two adjacent bright-field projections:
@@ -165,7 +197,7 @@ resolution = 1 / (2 * 0.260) = 1.93 lp/mm
 2. Gaussian approximation (valid when `N_bg >> 1`)
 3. Signal location known exactly (SKE) — no search penalty
 4. Background known exactly (BKE) — no anatomical clutter
-5. Parallel-beam approximation (valid near isocentre in cone-beam geometry)
+5. Steps 1–6: parallel-beam approximation; Step 7: 2D fan-beam point source at distance `D`. Cone-beam effects (off-central-slice resolution loss, Tuy condition) are not modelled.
 
 Assumptions 3 and 4 make this an upper bound on detectability — real performance in structured anatomy is worse. Hence "ideal" observer.
 
