@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Ideal observer CT resolution calculator"
+abstract: "Interactive web tool for computing the reconstruction-independent minimum detectable feature size and spatial-frequency limit of a CT scanner, derived from the projection-domain ideal observer (Rose criterion, SKE/BKE)."
+type: software
+authors:
+  - family-names: "Wiegmann"
+    given-names: "Falk L."
+    affiliation: "University of British Columbia"
+  - family-names: "Ford"
+    given-names: "Nancy L."
+    affiliation: "University of British Columbia"
+date-released: 2026-05-19
+version: "1.0.0"
+license: MIT
+repository-code: "https://github.com/UBC-Ford-lab/ideal_observer_SKE_BKE_model"
+url: "https://ubc-ford-lab.github.io/ideal_observer_SKE_BKE_model/"
+keywords:
+  - computed tomography
+  - ideal observer
+  - Rose criterion
+  - detectability
+  - resolution
+  - SKE/BKE

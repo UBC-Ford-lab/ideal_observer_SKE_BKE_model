@@ -1,0 +1,45 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom color utilities */
+.text-ct-blue {
+  @apply text-blue-700;
+}
+
+.text-ct-red {
+  @apply text-red-700;
+}
+
+.text-ct-green {
+  @apply text-green-700;
+}
+
+.text-ct-orange {
+  @apply text-orange-600;
+}
+
+/* Plotly customizations */
+.plotly-graph-div {
+  @apply rounded-lg;
+}
+
+/* Math (KaTeX) customizations */
+.katex-display {
+  @apply my-4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid.lg\:grid-cols-3 {
+    @apply grid-cols-1;
+  }
+}

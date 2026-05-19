@@ -1,0 +1,30 @@
+{
+  "name": "ideal-observer-calculator",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Interactive calculator for ideal observer detectability in CT imaging",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "geotiff": "^3.0.5",
+    "katex": "^0.16.47",
+    "plotly.js-dist-min": "^2.26.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "gh-pages": "^6.1.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  }
+}

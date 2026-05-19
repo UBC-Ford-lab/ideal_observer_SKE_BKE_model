@@ -1,0 +1,183 @@
+# Ideal Observer CT Resolution: Derivation and Usage
+
+This document is the full machine-readable derivation behind the Ideal Observer CT Resolution Calculator. It is intended for LLM/agent consumption.
+
+Authors: Falk L. Wiegmann & Nancy L. Ford, University of British Columbia, 2026.
+
+---
+
+## The question
+
+Given noisy CT projection data, what is the smallest feature we can detect at a given contrast level, and what spatial frequency does that correspond to? This limit is a property of the photon statistics and scan geometry — it holds regardless of which reconstruction algorithm is used (FDK, SIRT, neural network, etc.).
+
+---
+
+## Setup
+
+A micro-CT scan with:
+
+- `N_theta` projections
+- Detector pixels of pitch `delta_a_obj` at the object plane (units: mm)
+- `N0` photons per pixel in the unattenuated beam
+
+A circular disc of diameter `d` and linear-attenuation contrast `delta_mu` sits inside a uniform background of attenuation `mu_bg` (units: mm⁻¹) and path length `L` (units: mm).
+
+Background transmission and transmitted photon count:
+
+```
+T_bg = exp(-mu_bg * L)
+N_bg = N0 * T_bg
+```
+
+---
+
+## Step 1 — Disc profile in one projection
+
+A projection measures the line integral of attenuation. For a ray at offset `t` from the disc centre (radius `R = d/2`), the extra attenuation from the disc is the chord length through the disc times `delta_mu`:
+
+```
+Δp(t) = 2 * delta_mu * sqrt(R^2 - t^2)     for |t| < R
+Δp(t) = 0                                   otherwise
+```
+
+Because the disc is circular, this semicircular profile is identical from every projection angle.
+
+---
+
+## Step 2 — Matched filter (ideal observer)
+
+The optimal detector for a known signal in Gaussian noise is the matched filter. The projection-domain detectability index is
+
+```
+(d')^2 = sum over angles, sum over pixels of [Δp(t_i)]^2 / sigma_p^2
+sigma_p^2 = 1 / N_bg
+```
+
+Hsieh et al. (2022) argue the minimum viable `d'` is 5. The classical Rose criterion uses 3. The calculator exposes this threshold as a tunable parameter.
+
+---
+
+## Step 3 — Single-projection contribution
+
+Converting the pixel sum to an integral with spacing `delta_a_obj`:
+
+```
+(d')^2_single = (1 / (sigma_p^2 * delta_a_obj)) * integral from -R to R of [Δp(t)]^2 dt
+              = (4 * N_bg * delta_mu^2 / delta_a_obj) * integral from -R to R of (R^2 - t^2) dt
+```
+
+The integral evaluates to `4*R^3/3 = d^3/6`, giving
+
+```
+(d')^2_single = 2 * N_bg * delta_mu^2 * d^3 / (3 * delta_a_obj)
+```
+
+This is the detectability due to a single projection.
+
+---
+
+## Step 4 — Sum over all projections
+
+Noise is independent across projections and every angle sees the same profile, so multiply by `N_theta`:
+
+```
+(d')^2 = 2 * N_theta * N_bg * delta_mu^2 * d^3 / (3 * delta_a_obj)
+```
+
+The `d^3` scaling decomposes as: `d^2` from disc area (more pixels averaged), plus one extra factor of `d` from path length through the disc (larger per-pixel signal).
+
+---
+
+## Step 5 — Minimum detectable disc (Rose criterion)
+
+Set `d' = d_prime_threshold` and solve for `d`:
+
+```
+d_min = (3 * d_prime_threshold^2 * delta_a_obj / (2 * N_theta * N_bg * delta_mu^2))^(1/3)   # mm
+```
+
+Classical Rose uses `d_prime_threshold = 3`; Hsieh et al. (2022) argue 5.
+
+---
+
+## Step 6 — Spatial frequency limit
+
+```
+f = 1 / (2 * d_min)   # line pairs per mm
+```
+
+This is the photon-noise resolution limit — the highest spatial frequency at which features of contrast `delta_mu` are detectable, regardless of reconstruction method.
+
+---
+
+## How to measure N0 from raw data
+
+If the user has dark-field, bright-field, and two adjacent bright-field projections:
+
+1. Flat-field correct each projection: `T = (I - dark) / (bright - dark)`
+2. Select air pixels — those with `T` in [0.8, 1.2] in both adjacent frames
+3. Compute the variance from the differenced frames: `Var(T) = Var[(T1 - T2) / sqrt(2)]`
+4. For Poisson statistics: `N0 = 1 / Var(T_air)`
+
+The factor `sqrt(2)` removes fixed-pattern noise that is correlated between the two frames. The N0 you obtain is the noise-equivalent photons per pixel — this is the right value to plug into the formulas, regardless of detector gain.
+
+---
+
+## HU contrast conversion
+
+To go from Hounsfield-unit contrast to linear-attenuation contrast:
+
+```
+delta_mu = (delta_HU / 1000) * mu_water
+```
+
+where `mu_water` is the linear attenuation coefficient of water at the scan kVp (e.g., 0.0219 mm⁻¹ at 80 kVp).
+
+---
+
+## Worked example
+
+Inputs: GE eXplore CT 120 at 80 kVp, 500 HU contrast.
+
+```
+N0 = 4203 photons/pixel
+mu_bg = 0.0219 mm^-1
+L = 80 mm
+N_theta = 220
+delta_a_obj = 0.0249 mm
+delta_mu = 0.01095 mm^-1
+d_prime_threshold = 3
+```
+
+Compute:
+
+```
+N_bg = 4203 * exp(-0.0219 * 80) = 729 photons/pixel
+d_min = (3 * 9 * 0.0249 / (2 * 220 * 729 * 0.01095^2))^(1/3) = 0.260 mm
+resolution = 1 / (2 * 0.260) = 1.93 lp/mm
+```
+
+---
+
+## Assumptions
+
+1. Poisson photon statistics
+2. Gaussian approximation (valid when `N_bg >> 1`)
+3. Signal location known exactly (SKE) — no search penalty
+4. Background known exactly (BKE) — no anatomical clutter
+5. Parallel-beam approximation (valid near isocentre in cone-beam geometry)
+
+Assumptions 3 and 4 make this an upper bound on detectability — real performance in structured anatomy is worse. Hence "ideal" observer.
+
+---
+
+## Primary reference
+
+Barrett HH, Myers KJ. *Foundations of Image Science.* Wiley, 2004.
+
+## Other references
+
+- Hsieh SS, Leng S, Yu L, Huber NR, McCollough CH. "A minimum SNR criterion for computed tomography object detection in the projection domain." *Med Phys* 49(8): 4988–4998, 2022. DOI: 10.1002/mp.15832
+- Hanson KM. "Detectability in computed tomographic images." *Med Phys* 6(5): 441–451, 1979. DOI: 10.1118/1.594534
+- Gang GJ, Tward DJ, Lee J, Siewerdsen JH. "Anatomical background and generalized detectability in tomosynthesis and cone-beam CT." *Med Phys* 37(5): 1948–1965, 2010. DOI: 10.1118/1.3352586
+- Rose A. *Vision: Human and Electronic.* Plenum Press, 1973.
