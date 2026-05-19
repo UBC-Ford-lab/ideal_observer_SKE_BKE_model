@@ -5,9 +5,98 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ideal Observer CT Resolution Calculator</title>
+
+    <!-- Short description for crawlers, agents, and link previews -->
+    <meta
+      name="description"
+      content="Interactive calculator for the reconstruction-independent minimum detectable feature size and spatial-frequency limit of a CT scanner, from the projection-domain SKE/BKE ideal observer (Rose criterion). d_min = (3·d'_th²·Δa_obj / (2·N_θ·N_bg·Δμ²))^(1/3); N_bg = N0·exp(-μ_bg·L)."
+    />
+
+    <!-- Discovery hints for LLM agents and crawlers -->
+    <link rel="alternate" type="text/plain" href="llms.txt" title="LLM-friendly summary" />
+    <link rel="alternate" type="text/plain" href="llms-full.txt" title="Full derivation in plain text" />
+    <link rel="alternate" type="application/json" href="formulas.json" title="Machine-readable formulas" />
+
+    <!-- Schema.org structured data so general crawlers (and agents that
+         parse JSON-LD) get the formula and pointers without rendering JS. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Ideal Observer CT Resolution Calculator",
+        "applicationCategory": "ScientificApplication",
+        "operatingSystem": "Web",
+        "url": "https://ubc-ford-lab.github.io/ideal_observer_SKE_BKE_model/",
+        "license": "https://opensource.org/licenses/MIT",
+        "author": [
+          { "@type": "Person", "name": "Falk L. Wiegmann", "affiliation": "University of British Columbia" },
+          { "@type": "Person", "name": "Nancy L. Ford", "affiliation": "University of British Columbia" }
+        ],
+        "description": "Computes the reconstruction-independent minimum detectable feature size and spatial-frequency limit of a CT scanner from the projection-domain SKE/BKE ideal observer (Rose criterion).",
+        "softwareHelp": [
+          { "@type": "CreativeWork", "url": "llms.txt", "name": "LLM-friendly summary" },
+          { "@type": "CreativeWork", "url": "llms-full.txt", "name": "Full derivation" },
+          { "@type": "CreativeWork", "url": "formulas.json", "name": "Machine-readable formulas" }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Static content visible to agents that fetch without executing JS.
+         Anything an LLM needs to compute the result is right here. -->
+    <noscript>
+      <article style="max-width: 720px; margin: 2rem auto; font-family: system-ui, sans-serif;">
+        <h1>Ideal Observer CT Resolution Calculator</h1>
+        <p>
+          Interactive calculator for the theoretical minimum detectable feature size and
+          spatial-frequency limit of a CT scanner, derived from the projection-domain ideal
+          observer (Rose criterion, SKE/BKE). The result is a reconstruction-independent upper
+          bound on detectability.
+        </p>
+        <p>Authors: Falk L. Wiegmann &amp; Nancy L. Ford, University of British Columbia, 2026.</p>
+
+        <h2>For AI agents</h2>
+        <ul>
+          <li><a href="llms.txt">llms.txt</a> — short, LLM-friendly summary</li>
+          <li><a href="llms-full.txt">llms-full.txt</a> — full derivation in plain text</li>
+          <li><a href="formulas.json">formulas.json</a> — typed JSON: inputs, outputs, formulas, worked example</li>
+        </ul>
+
+        <h2>Closed-form formula</h2>
+        <p>Inputs:</p>
+        <ul>
+          <li><code>N0</code> — photons per pixel in the unattenuated beam</li>
+          <li><code>mu_bg</code> — background linear attenuation coefficient (mm⁻¹)</li>
+          <li><code>L</code> — path length through background (mm)</li>
+          <li><code>N_theta</code> — number of projection angles</li>
+          <li><code>delta_a_obj</code> — detector pixel pitch at the object plane (mm)</li>
+          <li><code>delta_mu</code> — linear attenuation contrast of the feature (mm⁻¹); for HU contrast: <code>delta_mu = (delta_HU / 1000) * mu_water</code></li>
+          <li><code>d_prime_threshold</code> — Rose detectability threshold (classical: 3; Hsieh et al. 2022: 5)</li>
+        </ul>
+        <p>Compute:</p>
+        <pre><code>N_bg                = N0 * exp(-mu_bg * L)
+d_min               = (3 * d_prime_threshold^2 * delta_a_obj
+                       / (2 * N_theta * N_bg * delta_mu^2)) ^ (1/3)        # mm
+resolution_lp_per_mm = 1 / (2 * d_min)                                     # lp/mm
+</code></pre>
+
+        <h2>Worked example</h2>
+        <p>GE eXplore CT 120 at 80 kVp, 500 HU object contrast:</p>
+        <pre><code>N0 = 4203, mu_bg = 0.0219, L = 80, N_theta = 220,
+delta_a_obj = 0.0249, delta_mu = 0.01095, d_prime_threshold = 3
+
+N_bg               = 729 photons/pixel
+d_min              = 0.260 mm
+resolution         = 1.93 lp/mm
+</code></pre>
+
+        <h2>License &amp; citation</h2>
+        <p>MIT licensed. Cite via the repository's CITATION.cff or BibTeX in the README.</p>
+      </article>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
