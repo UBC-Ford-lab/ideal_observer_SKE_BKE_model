@@ -1,6 +1,9 @@
 # Ideal observer CT resolution calculator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live demo](https://img.shields.io/badge/Live%20demo-open%20%E2%86%92-blue)](https://ubc-ford-lab.github.io/ideal_observer_SKE_BKE_model/)
+
+**→ Try it: [ubc-ford-lab.github.io/ideal_observer_SKE_BKE_model](https://ubc-ford-lab.github.io/ideal_observer_SKE_BKE_model/)**
 
 A small interactive page that estimates the theoretical resolution limit of a CT scanner from its photon statistics and scan geometry. The result is a reconstruction-independent upper bound — no FDK, no SIRT, no neural reconstruction can do better than this.
 

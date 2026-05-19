@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Plotly from 'plotly.js-dist-min';
-import { ScannerParams, generateDPrimeCurve, generateMinDiameterCurve, calculateDMin, huToMu } from '../lib/calculations';
+import { ScannerParams, generateDPrimeCurve, generateMinDiameterCurve, huToMu } from '../lib/calculations';
 
 interface InteractivePlotsProps {
   params: ScannerParams;
@@ -10,7 +10,6 @@ interface InteractivePlotsProps {
 
 export const InteractivePlots: React.FC<InteractivePlotsProps> = ({
   params,
-  contrast,
   roseThreshold = 3.0,
 }) => {
   const ref1 = useRef<HTMLDivElement>(null);

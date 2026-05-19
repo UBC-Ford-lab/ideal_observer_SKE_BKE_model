@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScannerParams, DetectabilityResult, analyzeDetectability, huToMu } from '../lib/calculations';
+import { ScannerParams, analyzeDetectability } from '../lib/calculations';
 
 interface ResultsDisplayProps {
   params: ScannerParams;

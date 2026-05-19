@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScannerParams } from './lib/calculations';
 import { ParameterInput } from './components/ParameterInput';
 import { ResultsDisplay } from './components/ResultsDisplay';
