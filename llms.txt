@@ -1,0 +1,38 @@
+# Ideal Observer CT Resolution Calculator
+
+> Interactive calculator for the minimum detectable feature size and spatial-frequency limit of a CT scanner, derived from the projection-domain ideal observer (Rose criterion, SKE/BKE). The result is reconstruction-independent — it is a property of photon statistics and scan geometry.
+
+Authors: Falk L. Wiegmann & Nancy L. Ford, University of British Columbia, 2026.
+
+## What this is for
+
+Given a CT scanner's photon flux and geometry, this calculator answers: *what is the smallest disc of a given contrast that the scanner can theoretically detect?* The model is non-prewhitening, signal-known-exactly (SKE), background-known-exactly (BKE), and assumes Poisson photon statistics. The result is an **upper bound** on detectability — every real reconstruction (FDK, SIRT, neural) performs worse.
+
+## Quick formula (for agents who just want to compute)
+
+Inputs: `N0` (photons/px in the unattenuated beam), `mu_bg` (mm⁻¹), `L` (mm), `N_theta`, `delta_a_obj` (mm), `delta_mu` (mm⁻¹), `d_prime_threshold` (default 3).
+
+```
+N_bg = N0 * exp(-mu_bg * L)
+d_min = (3 * d_prime_threshold^2 * delta_a_obj / (2 * N_theta * N_bg * delta_mu^2))^(1/3)   # mm
+resolution = 1 / (2 * d_min)                                                                # lp/mm
+```
+
+For HU contrast: `delta_mu = (delta_HU / 1000) * mu_water`.
+
+## Resources
+
+- [llms-full.txt](llms-full.txt): full derivation in plain markdown — every step from matched filter to d_min.
+- [formulas.json](formulas.json): typed JSON schema of inputs/outputs with the closed-form equations in Python and LaTeX, plus a worked example.
+- [index.html](index.html): interactive UI with TIFF upload for N₀ estimation from flat-field measurements.
+
+## Primary reference
+
+Barrett HH, Myers KJ. *Foundations of Image Science.* Wiley, 2004.
+
+## Other references
+
+- Hsieh SS, Leng S, Yu L, Huber NR, McCollough CH. "A minimum SNR criterion for computed tomography object detection in the projection domain." *Med Phys* 49(8): 4988–4998, 2022.
+- Hanson KM. "Detectability in computed tomographic images." *Med Phys* 6(5): 441–451, 1979.
+- Gang GJ, Tward DJ, Lee J, Siewerdsen JH. "Anatomical background and generalized detectability in tomosynthesis and cone-beam CT." *Med Phys* 37(5): 1948–1965, 2010.
+- Rose A. *Vision: Human and Electronic.* Plenum Press, 1973.
