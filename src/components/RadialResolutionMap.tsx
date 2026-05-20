@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import Plotly from 'plotly.js-dist-min';
 import { ScannerParams, huToMu } from '../lib/calculations';
 import { RadialMapConfig, resolutionMap } from '../lib/radialMap';
@@ -7,6 +7,14 @@ interface RadialResolutionMapProps {
   params: ScannerParams;
   contrast: number;
   roseThreshold: number;
+  phantomR: number;
+  setPhantomR: (v: number) => void;
+  arcDeg: number;
+  setArcDeg: (v: number) => void;
+  arcCenterDeg: number;
+  setArcCenterDeg: (v: number) => void;
+  sod: number;
+  setSod: (v: number) => void;
 }
 
 const GRID_N = 60;
@@ -15,23 +23,17 @@ export const RadialResolutionMap: React.FC<RadialResolutionMapProps> = ({
   params,
   contrast,
   roseThreshold,
+  phantomR,
+  setPhantomR,
+  arcDeg,
+  setArcDeg,
+  arcCenterDeg,
+  setArcCenterDeg,
+  sod,
+  setSod,
 }) => {
-  const [phantomR, setPhantomR] = useState(params.L / 2);
-  const [arcDeg, setArcDeg] = useState(192);
-  const [arcCenterDeg, setArcCenterDeg] = useState(0);
-  const [sod, setSod] = useState(396.40);
   const plotRef = useRef<HTMLDivElement>(null);
   const plot3dRef = useRef<HTMLDivElement>(null);
-
-  // Keep phantomR in sync if user changes L in the main panel and hasn't
-  // touched the R slider this session.
-  const lastSyncedL = useRef(params.L);
-  useEffect(() => {
-    if (params.L !== lastSyncedL.current) {
-      setPhantomR(params.L / 2);
-      lastSyncedL.current = params.L;
-    }
-  }, [params.L]);
 
   const config = useMemo<RadialMapConfig>(() => {
     const arcRad = (arcDeg * Math.PI) / 180;

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScannerParams } from './lib/calculations';
 import { ParameterInput } from './components/ParameterInput';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { InteractivePlots } from './components/InteractivePlots';
 import { DerivationWalkthrough } from './components/DerivationWalkthrough';
 import { RadialResolutionMap } from './components/RadialResolutionMap';
+import { OffMidSliceCBCT } from './components/OffMidSliceCBCT';
 import './App.css';
 
 function App() {
@@ -18,6 +19,22 @@ function App() {
   const [contrast, setContrast] = useState(500);
   const [roseThreshold, setRoseThreshold] = useState(3.0);
   const [showRadialMap, setShowRadialMap] = useState(false);
+  const [showOffMidSlice, setShowOffMidSlice] = useState(false);
+
+  // Radial-map controls (shared between 2D heatmap and 3D off-mid-slice view)
+  const [phantomR, setPhantomR] = useState(40);
+  const [arcDeg, setArcDeg] = useState(192);
+  const [arcCenterDeg, setArcCenterDeg] = useState(0);
+  const [sod, setSod] = useState(396.4);
+
+  // Auto-sync phantomR with L when the user changes L (but not vice versa)
+  const lastSyncedL = useRef(params.L);
+  useEffect(() => {
+    if (params.L !== lastSyncedL.current) {
+      setPhantomR(params.L / 2);
+      lastSyncedL.current = params.L;
+    }
+  }, [params.L]);
 
   const handleParamsChange = (newParams: ScannerParams, newContrast: number) => {
     setParams(newParams);
@@ -69,6 +86,25 @@ function App() {
               </span>
             </label>
           </div>
+
+          {/* Off-mid-slice toggle (only when radial map is on) */}
+          {showRadialMap && (
+            <div className="mt-2 pl-3">
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs font-mono text-gray-700">Compute CBCT case</span>
+                <span className="relative inline-block">
+                  <input
+                    type="checkbox"
+                    checked={showOffMidSlice}
+                    onChange={(e) => setShowOffMidSlice(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <span className="block w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></span>
+                  <span className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></span>
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Middle: Results */}
@@ -94,6 +130,32 @@ function App() {
             params={params}
             contrast={contrast}
             roseThreshold={roseThreshold}
+            phantomR={phantomR}
+            setPhantomR={setPhantomR}
+            arcDeg={arcDeg}
+            setArcDeg={setArcDeg}
+            arcCenterDeg={arcCenterDeg}
+            setArcCenterDeg={setArcCenterDeg}
+            sod={sod}
+            setSod={setSod}
+          />
+        </div>
+      )}
+
+      {/* Off-mid-slice CBCT half-cylinder (toggle) */}
+      {showRadialMap && showOffMidSlice && (
+        <div className="max-w-6xl mx-auto mt-6 border border-gray-300 p-4">
+          <div className="text-xs font-mono font-bold mb-3 pb-2 border-b">
+            Off-mid-slice CBCT: half-cylinder view of d_min(x, y, z)
+          </div>
+          <OffMidSliceCBCT
+            params={params}
+            contrast={contrast}
+            roseThreshold={roseThreshold}
+            phantomR={phantomR}
+            arcDeg={arcDeg}
+            arcCenterDeg={arcCenterDeg}
+            sod={sod}
           />
         </div>
       )}

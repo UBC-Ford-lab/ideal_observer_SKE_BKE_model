@@ -168,6 +168,43 @@ export const DerivationWalkthrough: React.FC = () => {
         </p>
       </Section>
 
+      <Section title="Step 8 — Off-mid-slice extension (CBCT)">
+        <p>
+          Step 7 still kept the feature in the midplane of the source orbit{' '}
+          (<Tex tex="z = 0" />). In a cone-beam scan, voxels above or below the midplane are hit
+          by rays tilted out of the orbit plane by the cone angle{' '}
+          <Tex tex="\kappa" />. For a voxel at <Tex tex="P=(x,y,z)" />, define
+        </p>
+        <Tex
+          tex="L_{xy} = \sqrt{(x - D\cos\theta)^2 + (y - D\sin\theta)^2}, \quad L_{3D} = \sqrt{L_{xy}^2 + z^2}, \quad \cos\kappa = L_{xy}/L_{3D}"
+          block
+        />
+
+        <p>
+          For a phantom that is invariant along <Tex tex="z" /> (an extruded cylinder), the
+          horizontal projection of the ray is the same line we already computed the chord for;
+          the tilt only stretches the traversal length:
+        </p>
+        <Tex tex="\text{chord}_{3D}(\theta, P) = \text{chord}(\theta, P)/\cos\kappa" block />
+
+        <p>The pixel-pitch correction uses the 3D source-to-voxel distance:</p>
+        <Tex tex="\Delta a_{obj}(P, \theta) = \Delta a_{obj}\cdot L_{3D}/D" block />
+
+        <p>
+          Substituting into the Step 7 sum (each projection's <Tex tex="|P-S|" /> becomes{' '}
+          <Tex tex="L_{3D}" /> and each chord acquires the <Tex tex="\sec\kappa" /> factor):
+        </p>
+        <Tex
+          tex="d_{\min}(P) = \left(\frac{3\,(d'_{\text{th}})^2\,\Delta a_{obj}}{2\,\Delta\mu^2\,D\,\displaystyle\sum_{\theta}\dfrac{N_0\,e^{-\mu_{bg}\,\text{chord}_{3D}(\theta,P)}}{L_{3D}(\theta,P)}}\right)^{1/3}"
+          block
+        />
+
+        <p>
+          The effect is set by the cone half-angle and is small for typical micro-CT (~1%). The
+          Tuy condition can be ignored for an ideal observer.
+        </p>
+      </Section>
+
       <Section title="References">
         <p>Primary reference:</p>
         <ul className="list-disc ml-5 space-y-1 text-gray-700">

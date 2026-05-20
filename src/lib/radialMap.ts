@@ -107,6 +107,65 @@ export function resolutionAt(x: number, y: number, c: RadialMapConfig): number {
   return isFinite(d) && d > 0 ? 1 / (2 * d) : NaN;
 }
 
+// --- 3D extension: voxel off the midplane (cone-beam, sec κ corrections) -----
+// For a voxel at (x, y, z) and source S(θ) = (D·cos θ, D·sin θ, 0):
+//   L_xy  = √((x-D·cos θ)² + (y-D·sin θ)²)
+//   L_3D  = √(L_xy² + z²)
+//   cos κ = L_xy / L_3D      (cone angle of the ray)
+//   chord_3D = chord_2D / cos κ = chord_2D · L_3D / L_xy
+// Per-projection integrand becomes N₀·exp(−μ_bg·chord_3D) / L_3D.
+
+export function dMinAt3D(
+  x: number,
+  y: number,
+  z: number,
+  c: RadialMapConfig
+): number {
+  const dPhi = c.arcEndRad - c.arcStartRad;
+  if (dPhi <= 0) return NaN;
+  if (x * x + y * y >= c.R * c.R) return NaN;
+
+  const h = dPhi / SIMPSON_PANELS;
+  let sum = 0;
+  for (let k = 0; k <= SIMPSON_PANELS; k++) {
+    const theta = c.arcStartRad + k * h;
+    const sx = c.SOD * Math.cos(theta);
+    const sy = c.SOD * Math.sin(theta);
+    const dx = x - sx;
+    const dy = y - sy;
+    const Lxy2 = dx * dx + dy * dy;
+    if (Lxy2 < 1e-12) continue;
+    const Lxy = Math.sqrt(Lxy2);
+    const L3D = Math.sqrt(Lxy2 + z * z);
+    // Chord through cylinder (xy projection — phantom is z-invariant)
+    const Sdot = sx * dx + sy * dy;
+    const Smag2 = sx * sx + sy * sy;
+    const disc = (Sdot * Sdot) / Lxy2 - (Smag2 - c.R * c.R);
+    if (disc <= 0) continue;
+    const chord_xy = 2 * Math.sqrt(disc);
+    const chord_3D = (chord_xy * L3D) / Lxy;
+    const f = (c.N0 * Math.exp(-c.mu_bg * chord_3D)) / L3D;
+    const w = k === 0 || k === SIMPSON_PANELS ? 1 : k % 2 === 1 ? 4 : 2;
+    sum += w * f;
+  }
+  const G = sum / (3 * SIMPSON_PANELS);
+  if (G <= 0) return NaN;
+  return Math.cbrt(
+    (3 * c.d_prime_threshold * c.d_prime_threshold * c.delta_a_obj) /
+      (2 * c.N_theta * c.SOD * c.delta_mu * c.delta_mu * G)
+  );
+}
+
+export function resolutionAt3D(
+  x: number,
+  y: number,
+  z: number,
+  c: RadialMapConfig
+): number {
+  const d = dMinAt3D(x, y, z, c);
+  return isFinite(d) && d > 0 ? 1 / (2 * d) : NaN;
+}
+
 export interface ResolutionMap {
   x: number[];
   y: number[];
