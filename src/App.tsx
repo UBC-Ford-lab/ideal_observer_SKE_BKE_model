@@ -20,12 +20,20 @@ function App() {
   const [roseThreshold, setRoseThreshold] = useState(3.0);
   const [showRadialMap, setShowRadialMap] = useState(false);
   const [showOffMidSlice, setShowOffMidSlice] = useState(false);
+  const [showCrowther, setShowCrowther] = useState(false);
 
   // Radial-map controls (shared between 2D heatmap and 3D off-mid-slice view)
   const [phantomR, setPhantomR] = useState(40);
   const [arcDeg, setArcDeg] = useState(192);
   const [arcCenterDeg, setArcCenterDeg] = useState(0);
   const [sod, setSod] = useState(396.4);
+
+  // Off-centre object cylinder used by the noise chord (matches fig3 mouse
+  // case). Defaults to (0, 0) and R_obj = phantomR so behaviour is unchanged
+  // until the user moves them.
+  const [objCx, setObjCx] = useState(0);
+  const [objCy, setObjCy] = useState(0);
+  const [objR, setObjR] = useState(40);
 
   // Auto-sync phantomR with L when the user changes L (but not vice versa)
   const lastSyncedL = useRef(params.L);
@@ -35,6 +43,15 @@ function App() {
       lastSyncedL.current = params.L;
     }
   }, [params.L]);
+
+  // Auto-sync objR with phantomR when the user changes phantomR (same pattern).
+  const lastSyncedPhantomR = useRef(phantomR);
+  useEffect(() => {
+    if (phantomR !== lastSyncedPhantomR.current) {
+      setObjR(phantomR);
+      lastSyncedPhantomR.current = phantomR;
+    }
+  }, [phantomR]);
 
   const handleParamsChange = (newParams: ScannerParams, newContrast: number) => {
     setParams(newParams);
@@ -105,6 +122,25 @@ function App() {
               </label>
             </div>
           )}
+
+          {/* Crowther criterion toggle (only when radial map is on) */}
+          {showRadialMap && (
+            <div className="mt-2 pl-3">
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs font-mono text-gray-700">Show Crowther criterion</span>
+                <span className="relative inline-block">
+                  <input
+                    type="checkbox"
+                    checked={showCrowther}
+                    onChange={(e) => setShowCrowther(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <span className="block w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors"></span>
+                  <span className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></span>
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Middle: Results */}
@@ -138,6 +174,13 @@ function App() {
             setArcCenterDeg={setArcCenterDeg}
             sod={sod}
             setSod={setSod}
+            showCrowther={showCrowther}
+            objCx={objCx}
+            setObjCx={setObjCx}
+            objCy={objCy}
+            setObjCy={setObjCy}
+            objR={objR}
+            setObjR={setObjR}
           />
         </div>
       )}

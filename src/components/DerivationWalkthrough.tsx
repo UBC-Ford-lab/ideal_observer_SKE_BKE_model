@@ -205,6 +205,113 @@ export const DerivationWalkthrough: React.FC = () => {
         </p>
       </Section>
 
+      <Section title="Step 9 — Angular sampling (Crowther criterion)">
+        <p>
+          Steps 1–8 ask whether a feature is <em>detectable</em> above photon noise. A second,
+          independent question is whether the angular sample set can <em>represent</em> the
+          spatial-frequency content the feature carries. Even with infinitely many photons, a finite
+          number of projections imposes a ceiling on resolvable spatial frequency at each radius
+          from the centre of rotation.
+        </p>
+
+        <p>
+          With <Tex tex="N_\theta" /> projections spread over a scan arc of total extent{' '}
+          <Tex tex="\Delta\phi" /> (radians), the angular spacing between adjacent projections is{' '}
+          <Tex tex="\Delta\theta_{\text{step}} = \Delta\phi / N_\theta" />. At distance{' '}
+          <Tex tex="r" /> from the COR, two adjacent projection directions subtend a circumferential
+          arc length
+        </p>
+        <Tex
+          tex="s(r) = r\,\Delta\theta_{\text{step}} = \frac{\Delta\phi\,r}{N_\theta}"
+          block
+        />
+
+        <CrowtherGeometryFigure />
+
+        <p>
+          The polar sampling grid is Nyquist-limited by its coarsest direction. At radius{' '}
+          <Tex tex="r" /> the coarsest direction is circumferential, with spacing{' '}
+          <Tex tex="s(r)" />. The highest spatial frequency representable without aliasing is{' '}
+          <Tex tex="1/(2 s)" />:
+        </p>
+        <Tex
+          tex="f_{\text{Crowther}}(r) = \frac{1}{2 s(r)} = \frac{N_\theta}{2\,\Delta\phi\,r}"
+          block
+        />
+        <p>diverging at <Tex tex="r=0" /> and falling as <Tex tex="1/r" /> outward.</p>
+
+        <p>
+          Regardless of how many projections you acquire, no spatial frequency above the detector
+          Nyquist <Tex tex="1/(2\,\Delta a_{obj})" /> survives a sampled detector. The angular
+          ceiling is therefore capped:
+        </p>
+        <Tex
+          tex="f_{\text{Crowther}}(r) = \min\!\left(\frac{N_\theta}{2\,\Delta\phi\,r},\;\frac{1}{2\,\Delta a_{obj}}\right)"
+          block
+        />
+        <p>
+          shown in panel <strong>(b)</strong> of the radial map. The flat red plateau near the COR
+          in the 3D view is this cap.
+        </p>
+
+        <p>
+          The effective resolution ceiling at each voxel <Tex tex="P" /> is the more restrictive
+          of the two limits:
+        </p>
+        <Tex
+          tex="f_{\max}(P) = \min\!\big(f_{\text{noise}}(P),\; f_{\text{Crowther}}(|P|)\big)"
+          block
+        />
+        <p>
+          shown in panel <strong>(c)</strong>. The two limits are independent: noise vanishes as{' '}
+          <Tex tex="N_0 \to \infty" />, leaving angular sampling; angular sampling vanishes as{' '}
+          <Tex tex="N_\theta \to \infty" />, leaving noise. The white dashed contour marks the
+          set <Tex tex="\{P : f_{\text{noise}}(P) = f_{\text{Crowther}}(|P|)\}" /> — inside, photon
+          noise dominates; outside, angular sampling does.
+        </p>
+        <p className="text-gray-600 italic">
+          Note: Crowther's argument is independent of <Tex tex="N_0" />, <Tex tex="\Delta\mu" />,
+          and the matched filter — it would still apply with infinitely many photons. It is a
+          property of the <em>sampling</em>, not the <em>statistics</em>.
+        </p>
+      </Section>
+
+      <Section title="Step 10 — Off-centre object cylinder">
+        <p>
+          Step 7's chord formula{' '}
+          <Tex tex="\text{chord}(\theta, P) = 2\sqrt{(S\!\cdot\!\hat d)^2 - (D^2 - R^2)}" />{' '}
+          silently assumed the background cylinder of radius <Tex tex="R" /> was centred at the
+          isocentre. For a real specimen — e.g. a mouse on an off-centre bed — the bulk attenuator
+          is better modelled as a cylinder of radius <Tex tex="R_{obj}" /> centred at{' '}
+          <Tex tex="C=(c_x, c_y)" />, distinct from the COR.
+        </p>
+
+        <p>
+          Generalising to the line-circle intersection at the new centre: with{' '}
+          <Tex tex="V = C - S(\theta)" /> and unit ray direction{' '}
+          <Tex tex="\hat d = (P - S)/|P-S|" />, the perpendicular distance from <Tex tex="C" /> to
+          the ray line is <Tex tex="\text{perp}^2 = |V|^2 - (V\!\cdot\!\hat d)^2" />, giving
+        </p>
+        <Tex
+          tex="\text{chord}(\theta, P) = 2\sqrt{R_{obj}^2 - \text{perp}^2} \quad \text{when } R_{obj}^2 > \text{perp}^2,\; 0\text{ otherwise}"
+          block
+        />
+
+        <p>
+          The rest of Step 7 is unchanged — this chord plugs directly into the same{' '}
+          <Tex tex="d'^2" /> sum. When <Tex tex="(c_x, c_y) = (0,0)" /> and{' '}
+          <Tex tex="R_{obj} = R" />, the formula collapses back to the centred form.
+        </p>
+
+        <p>
+          Intuition: projection angles that "look through" more of the cylinder attenuate the beam
+          more, leave fewer <Tex tex="N_{bg}" /> photons at the detector, and contribute less to{' '}
+          <Tex tex="d'^2" /> at <Tex tex="P" />. When <Tex tex="C" /> is offset from the COR this
+          redistribution is asymmetric — which is what produces the lobe pattern visible in panel{' '}
+          <strong>(a)</strong> of the radial map when you move the object centre off origin.
+        </p>
+      </Section>
+
       <Section title="References">
         <p>Primary reference:</p>
         <ul className="list-disc ml-5 space-y-1 text-gray-700">
@@ -215,6 +322,12 @@ export const DerivationWalkthrough: React.FC = () => {
         </ul>
         <p className="mt-3">Some other references I found which derived parts of these concepts before me:</p>
         <ul className="list-disc ml-5 space-y-1 text-gray-700">
+          <li>
+            Crowther RA, DeRosier DJ, Klug A. "The reconstruction of a three-dimensional structure
+            from projections and its application to electron microscopy." <em>Proc R Soc Lond A</em>{' '}
+            317: 319–340, 1970.
+            <span className="text-gray-600"> (the classic angular-sampling derivation underlying Step 9)</span>
+          </li>
           <li>
             Hsieh SS et al. "A minimum SNR criterion for computed tomography object detection in
             the projection domain." <em>Med Phys</em> 49(8): 4988–4998, 2022.
@@ -325,6 +438,104 @@ const DiscGeometryFigure: React.FC = () => {
       <figcaption className="text-xs text-gray-500 mt-1">
         A single ray at offset <em>t</em> from the disc centre traverses a chord of length
         2√(R²−t²); the extra attenuation along that ray is Δμ times the chord length.
+      </figcaption>
+    </figure>
+  );
+};
+
+const CrowtherGeometryFigure: React.FC = () => {
+  // COR at (170, 130). Two adjacent projection directions separated by 25°
+  // (exaggerated for visibility). Show the circle of radius r and the
+  // circumferential arc s between the two radii.
+  const cx = 170, cy = 130, r = 70;
+  const dThetaDeg = 25;
+  const dTheta = (dThetaDeg * Math.PI) / 180;
+  // Angles measured from +x axis, CCW. Direction A is straight up (90°);
+  // direction B is 25° clockwise from A.
+  const aAngle = Math.PI / 2;
+  const bAngle = aAngle - dTheta;
+  const ax = cx + r * Math.cos(aAngle);
+  const ay = cy - r * Math.sin(aAngle);
+  const bx = cx + r * Math.cos(bAngle);
+  const by = cy - r * Math.sin(bAngle);
+  // Inner Δθ marker arc (small radius near COR).
+  const rInner = 18;
+  const ix0 = cx + rInner * Math.cos(aAngle);
+  const iy0 = cy - rInner * Math.sin(aAngle);
+  const ix1 = cx + rInner * Math.cos(bAngle);
+  const iy1 = cy - rInner * Math.sin(bAngle);
+
+  return (
+    <figure className="my-3 flex flex-col items-center">
+      <svg viewBox="0 0 340 200" className="w-full max-w-sm" aria-label="Crowther sampling geometry">
+        {/* Circle of radius r (dashed grey) */}
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#9ca3af" strokeWidth="0.8" strokeDasharray="3,2" />
+
+        {/* COR marker (small +) */}
+        <line x1={cx - 5} y1={cy} x2={cx + 5} y2={cy} stroke="#374151" strokeWidth="1.2" />
+        <line x1={cx} y1={cy - 5} x2={cx} y2={cy + 5} stroke="#374151" strokeWidth="1.2" />
+        <text x={cx - 18} y={cy + 16} fontFamily="ui-monospace,monospace" fontSize="9" fill="#6b7280">
+          COR
+        </text>
+
+        {/* Radial line A (projection direction θ) */}
+        <line x1={cx} y1={cy} x2={ax} y2={ay} stroke="#374151" strokeWidth="1.0" />
+        {/* Radial line B (projection direction θ + Δθ) */}
+        <line x1={cx} y1={cy} x2={bx} y2={by} stroke="#374151" strokeWidth="1.0" />
+
+        {/* Highlighted circumferential arc at radius r */}
+        <path
+          d={`M ${ax} ${ay} A ${r} ${r} 0 0 1 ${bx} ${by}`}
+          fill="none"
+          stroke="#1d4ed8"
+          strokeWidth="2.5"
+        />
+
+        {/* Δθ marker arc near COR */}
+        <path
+          d={`M ${ix0} ${iy0} A ${rInner} ${rInner} 0 0 1 ${ix1} ${iy1}`}
+          fill="none"
+          stroke="#374151"
+          strokeWidth="0.9"
+        />
+
+        {/* Labels */}
+        <text x={cx + 8} y={cy - 8} fontFamily="ui-monospace,monospace" fontSize="11" fill="#374151">
+          Δθ
+        </text>
+        <text
+          x={cx - 14}
+          y={cy - r / 2 + 6}
+          fontFamily="ui-monospace,monospace"
+          fontSize="11"
+          fill="#374151"
+        >
+          r
+        </text>
+        {/* Arc-label position: midpoint of arc pushed radially outward so it
+            sits above the circle, well clear of the θ ray-tip label. */}
+        <text
+          x={cx + (r + 22) * Math.cos((aAngle + bAngle) / 2) - 26}
+          y={cy - (r + 22) * Math.sin((aAngle + bAngle) / 2) + 4}
+          fontFamily="ui-monospace,monospace"
+          fontSize="10"
+          fill="#1d4ed8"
+        >
+          s = r·Δθ
+        </text>
+
+        {/* Direction labels at the ray tips */}
+        <text x={ax - 14} y={ay - 4} fontFamily="ui-monospace,monospace" fontSize="9" fill="#6b7280">
+          θ
+        </text>
+        <text x={bx + 4} y={by - 4} fontFamily="ui-monospace,monospace" fontSize="9" fill="#6b7280">
+          θ + Δθ
+        </text>
+      </svg>
+      <figcaption className="text-xs text-gray-500 mt-1 max-w-md text-center">
+        Two adjacent projection directions, separated by Δθ. At radius <em>r</em> from the COR, the
+        circumferential arc length between them is <em>s = r·Δθ</em> — the tangential Nyquist
+        spacing at that radius. Δθ shown exaggerated.
       </figcaption>
     </figure>
   );
