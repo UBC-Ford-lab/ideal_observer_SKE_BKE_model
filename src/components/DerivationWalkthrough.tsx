@@ -241,12 +241,35 @@ export const DerivationWalkthrough: React.FC = () => {
         <p>diverging at <Tex tex="r=0" /> and falling as <Tex tex="1/r" /> outward.</p>
 
         <p>
+          Two refinements make this exact for any arc. Ray directions repeat modulo{' '}
+          <Tex tex="\pi" />, so what matters is the largest angular <em>gap</em> between sampled
+          directions. For <Tex tex="\Delta\phi \ge \pi" /> the conjugate-covered band only
+          revisits directions and the gap is the adjacent-view spacing{' '}
+          <Tex tex="\Delta\phi/N_\theta" /> — no redundancy correction is needed, and at{' '}
+          <Tex tex="\Delta\phi = 2\pi" /> this automatically reproduces the familiar
+          &ldquo;<Tex tex="N_\theta/2" /> independent views over <Tex tex="\pi" />&rdquo;
+          convention. For <Tex tex="\Delta\phi < \pi" /> an unsampled wedge of directions of
+          width <Tex tex="\pi - \Delta\phi" /> remains (the limited-angle regime), and that wedge
+          becomes the binding gap. The calculator therefore evaluates
+        </p>
+        <Tex
+          tex="f_{\text{Crowther}}(r) = \frac{1}{2 r \cdot \max\!\left(\Delta\phi/N_\theta,\; \pi - \Delta\phi\right)}"
+          block
+        />
+        <p>
+          which equals <Tex tex="N_\theta/(2\,\Delta\phi\,r)" /> for every arc of at least{' '}
+          <Tex tex="180^\circ" /> and collapses toward zero as the arc shrinks below it. (In the
+          limited-angle regime this is the worst-direction bound; resolution along the sampled
+          directions is anisotropic and can be better.)
+        </p>
+
+        <p>
           Regardless of how many projections you acquire, no spatial frequency above the detector
           Nyquist <Tex tex="1/(2\,\Delta a_{obj})" /> survives a sampled detector. The angular
           ceiling is therefore capped:
         </p>
         <Tex
-          tex="f_{\text{Crowther}}(r) = \min\!\left(\frac{N_\theta}{2\,\Delta\phi\,r},\;\frac{1}{2\,\Delta a_{obj}}\right)"
+          tex="f_{\text{Crowther}}(r) = \min\!\left(\frac{1}{2 r \cdot \max\!\left(\Delta\phi/N_\theta,\; \pi - \Delta\phi\right)},\;\frac{1}{2\,\Delta a_{obj}}\right)"
           block
         />
         <p>

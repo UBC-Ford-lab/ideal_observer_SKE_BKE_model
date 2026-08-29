@@ -26,9 +26,17 @@
 //   d_min = (3·(d'_th)²·Δa_obj / (2·N_θ·N̄_bg·Δμ²))^(1/3)   ✓
 //
 // Crowther criterion (angular-sampling Nyquist) at radius r from the
-// centre of rotation:
-//   f_crowther(r) = N_θ / (Δφ · 2 r)
-// capped at the detector Nyquist 1 / (2 Δa_obj_iso).
+// centre of rotation. Ray directions live modulo π, so the binding
+// quantity is the largest angular gap between sampled directions:
+//   gap = max(Δφ/N_θ, π − Δφ)
+//   f_crowther(r) = 1 / (2 r · gap)
+// For Δφ ≥ π this reduces to the familiar N_θ / (Δφ · 2 r): the
+// conjugate-covered band only revisits directions and never widens a
+// gap (at Δφ = 2π this automatically reproduces the "N_θ/2 independent
+// views over π" convention). For Δφ < π the unsampled wedge (π − Δφ)
+// becomes the largest gap, so the supported isotropic frequency
+// collapses as the arc shrinks (limited-angle regime).
+// Capped at the detector Nyquist 1 / (2 Δa_obj_iso).
 
 export interface RadialMapConfig {
   R: number;              // phantom radius (mm) = L/2 — bounds the visible domain
@@ -211,7 +219,9 @@ export function resolutionAt3D(
 }
 
 // ---- Crowther criterion -----------------------------------------------------
-// f_crowther(r) = N_θ / (Δφ · 2 r), capped at detector Nyquist 1/(2·Δa_obj).
+// f_crowther(r) = 1 / (2 r · max(Δφ/N_θ, π − Δφ)), capped at detector
+// Nyquist 1/(2·Δa_obj). Equals N_θ / (Δφ · 2 r) whenever Δφ ≥ π; for
+// Δφ < π the unsampled directional wedge is the binding gap.
 
 export function detectorNyquist(c: RadialMapConfig): number {
   return 1 / (2 * c.delta_a_obj);
@@ -223,7 +233,10 @@ export function crowtherAt(x: number, y: number, c: RadialMapConfig): number {
   if (dPhi <= 0) return NaN;
   const nyq = detectorNyquist(c);
   if (r < 1e-9) return nyq;
-  const f = c.N_theta / (dPhi * 2 * r);
+  // Largest angular gap between sampled ray directions (mod π):
+  // adjacent-view spacing, or the unsampled wedge when the arc < π.
+  const gap = Math.max(dPhi / c.N_theta, Math.PI - dPhi);
+  const f = 1 / (2 * r * gap);
   return Math.min(f, nyq);
 }
 
