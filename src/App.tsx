@@ -64,6 +64,10 @@ function App() {
       <div className="mb-6 border-b pb-3">
         <h1 className="text-sm font-mono font-bold">ideal observer CT resolution</h1>
         <p className="text-xs text-gray-600 font-mono">This page calculates the theoretical minimum detectable object size given your CT system, based on a signal-known-exactly (SKE) and background-known-exactly (BKE) ideal observer model. Please note this is a non-prewhitening model (because noise statistics are intractable nowadays with the different types of reconstruction algorithms out there). Hope it's useful!</p>
+        <p className="text-xs text-gray-600 font-mono mt-1">
+          Theory and validation are in our open-access paper in <em>Medical Physics</em>:{' '}
+          <a href="https://doi.org/10.1002/mp.70737" className="underline" target="_blank" rel="noopener noreferrer">doi:10.1002/mp.70737</a>.
+        </p>
       </div>
 
       {/* Main layout */}
@@ -212,6 +216,10 @@ function App() {
       {/* Footer */}
       <div className="max-w-6xl mx-auto mt-6 text-xs text-gray-500 font-mono border-t pt-2">
         <p>Falk L. Wiegmann &amp; Nancy L. Ford — University of British Columbia — 2026</p>
+        <p className="mt-1">
+          If you use this calculator, please cite: F. L. Wiegmann and N. L. Ford, "Task-Based Detectability and Angular-Sampling Bounds on Spatial Resolution in Cone-Beam Micro-CT: A Closed-Form Scan-Design Analysis," <em>Medical Physics</em> 53(11), e70737 (2026). 
+          <a href="https://doi.org/10.1002/mp.70737" className="underline" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/mp.70737</a>
+        </p>
       </div>
     </div>
   );

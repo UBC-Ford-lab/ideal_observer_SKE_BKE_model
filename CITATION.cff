@@ -22,3 +22,20 @@ keywords:
   - detectability
   - resolution
   - SKE/BKE
+preferred-citation:
+  type: article
+  title: "Task-Based Detectability and Angular-Sampling Bounds on Spatial Resolution in Cone-Beam Micro-CT: A Closed-Form Scan-Design Analysis"
+  authors:
+    - family-names: "Wiegmann"
+      given-names: "Falk L."
+      affiliation: "University of British Columbia"
+    - family-names: "Ford"
+      given-names: "Nancy L."
+      affiliation: "University of British Columbia"
+  journal: "Medical Physics"
+  volume: 53
+  issue: 11
+  start: "e70737"
+  year: 2026
+  doi: "10.1002/mp.70737"
+  url: "https://doi.org/10.1002/mp.70737"

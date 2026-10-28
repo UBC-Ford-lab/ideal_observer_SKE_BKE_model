@@ -41,9 +41,28 @@ There's an `llms.txt`, `llms-full.txt`, and `formulas.json` at the deploy root. 
 
 ## Citation
 
-If you use this in your work, I'd appreciate a citation. GitHub will show a "Cite this repository" button in the sidebar (it reads [`CITATION.cff`](CITATION.cff)) with APA and BibTeX ready to copy.
+If you use this in your work, please cite the accompanying paper (open access):
+
+> F. L. Wiegmann and N. L. Ford, "Task-Based Detectability and Angular-Sampling Bounds on Spatial Resolution in Cone-Beam Micro-CT: A Closed-Form Scan-Design Analysis," *Medical Physics* **53**(11), e70737 (2026). https://doi.org/10.1002/mp.70737
+
+GitHub's "Cite this repository" button in the sidebar (it reads [`CITATION.cff`](CITATION.cff)) gives APA and BibTeX for the paper.
 
 BibTeX:
+
+```bibtex
+@article{wiegmann_ford_2026,
+  author  = {Wiegmann, Falk L. and Ford, Nancy L.},
+  title   = {Task-Based Detectability and Angular-Sampling Bounds on Spatial Resolution in Cone-Beam Micro-{CT}: A Closed-Form Scan-Design Analysis},
+  journal = {Medical Physics},
+  volume  = {53},
+  number  = {11},
+  pages   = {e70737},
+  year    = {2026},
+  doi     = {10.1002/mp.70737}
+}
+```
+
+To cite the software itself:
 
 ```bibtex
 @software{wiegmann_ideal_observer_2026,

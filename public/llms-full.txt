@@ -4,6 +4,8 @@ This document is the full machine-readable derivation behind the Ideal Observer 
 
 Authors: Falk L. Wiegmann & Nancy L. Ford, University of British Columbia, 2026.
 
+Paper (open access, please cite): F. L. Wiegmann and N. L. Ford, "Task-Based Detectability and Angular-Sampling Bounds on Spatial Resolution in Cone-Beam Micro-CT: A Closed-Form Scan-Design Analysis," Medical Physics 53(11), e70737 (2026). https://doi.org/10.1002/mp.70737
+
 ---
 
 ## The question
